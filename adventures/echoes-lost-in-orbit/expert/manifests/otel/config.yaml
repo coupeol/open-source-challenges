@@ -9,8 +9,6 @@ data:
     receivers:
       otlp:
         protocols:
-          grpc:
-            endpoint: 0.0.0.0:4317
           http:
             endpoint: 0.0.0.0:4318
 
@@ -24,14 +22,12 @@ data:
     exporters:
       debug:
         verbosity: detailed
-
       otlp:
         endpoint: jaeger-collector.jaeger.svc.cluster.local:4317
         tls:
           insecure: true
-
       prometheus:
-        endpoint: 0.0.0.0:8889
+        endpoint: "0.0.0.0:8889"
 
     extensions:
       health_check:
@@ -43,7 +39,6 @@ data:
         traces:
           receivers: [otlp]
           exporters: [debug, otlp, spanmetrics]
-
         metrics:
           receivers: [spanmetrics]
           exporters: [debug, prometheus]

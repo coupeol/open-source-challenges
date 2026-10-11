@@ -15,3 +15,11 @@ apply:
 
 verify:
 	@./verify.sh
+
+kubectl -n hotrod get analysisrun hotrod-f467f4fdf-2-1 \
+  -o json | jq '{
+    args: .spec.args,
+    phase: .status.phase,
+    message: .status.message,
+    metrics: .status.metricResults
+  }'
