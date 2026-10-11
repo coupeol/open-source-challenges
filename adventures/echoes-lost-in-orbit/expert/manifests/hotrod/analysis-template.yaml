@@ -6,7 +6,6 @@ spec:
   args:
     - name: namespace
     - name: canary-hash
-
   metrics:
     - name: error-rate-lt-5-percent
       initialDelay: 60s
@@ -30,7 +29,6 @@ spec:
               namespace="{{args.namespace}}",
               rollouts_pod_template_hash="{{args.canary-hash}}"
             }[2m]))
-
     - name: latency-p95-lt-1s
       initialDelay: 90s
       interval: 10s
@@ -43,24 +41,20 @@ spec:
         prometheus:
           address: http://prometheus-server.prometheus.svc.cluster.local
           query: |
-            histogram_quantile(
-              0.95,
-              sum by (le) (
-                rate(traces_span_metrics_duration_milliseconds_bucket{
-                  hotrod_namespace="{{args.namespace}}",
-                  hotrod_pod_hash="{{args.canary-hash}}"
-                }[2m])
-              )
+            histogram_quantile(0.95,
+              sum by (le) (rate(traces_span_metrics_duration_milliseconds_bucket{
+                hotrod_namespace="{{args.namespace}}",
+                hotrod_pod_hash="{{args.canary-hash}}"
+              }[2m]))
             )
-
-    - name: traffic-detection
-      initialDelay: 90s
+    - name: traffic-check
+      initialDelay: 60s
       interval: 10s
-      count: 5
+      count: 3
       successCondition: result[0] >= 0.05
-      failureLimit: 3
-      inconclusiveLimit: 5
-      consecutiveErrorLimit: 3
+      failureLimit: 2
+      inconclusiveLimit: 3
+      consecutiveErrorLimit: 2
       provider:
         prometheus:
           address: http://prometheus-server.prometheus.svc.cluster.local
